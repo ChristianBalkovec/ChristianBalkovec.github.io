@@ -1,0 +1,73 @@
+<!DOCTYPE html><html lang="en"><head><title>Code Samples - EMG Tools: Process EMG Data Quickly</title><meta name="description" content="Free EMG data processing software"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" type="image/png" href="../img/favicons/favicon-16x16.png" sizes="16x16"><link rel="icon" type="image/png" href="../img/favicons/favicon-32x32.png" sizes="32x32"><link rel="icon" type="image/png" href="../img/favicons/favicon-96x96.png" sizes="96x96"><link rel="apple-touch-icon" sizes="57x57" href="../img/favicons/apple-touch-icon-57x57.png"><link rel="apple-touch-icon" sizes="60x60" href="../img/favicons/apple-touch-icon-60x60.png"><link rel="apple-touch-icon" sizes="72x72" href="../img/favicons/apple-touch-icon-72x72.png"><link rel="apple-touch-icon" sizes="76x76" href="../img/favicons/apple-touch-icon-76x76.png"><link rel="apple-touch-icon" sizes="114x114" href="../img/favicons/apple-touch-icon-114x114.png"><link rel="apple-touch-icon" sizes="120x120" href="../img/favicons/apple-touch-icon-120x120.png"><link rel="apple-touch-icon" sizes="144x144" href="../img/favicons/apple-touch-icon-144x144.png"><link rel="apple-touch-icon" sizes="152x152" href="../img/favicons/apple-touch-icon-152x152.png"><link rel="apple-touch-icon" sizes="180x180" href="../img/favicons/apple-touch-icon-180x180.png"><link rel="stylesheet" href="../css/style.min.css"></head><body><!--[if lt IE 8]>
+	    <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+	<![endif]--><div class="page js-page"><div class="header header-over large"><div class="container-fluid container-spaced"><div class="row"><div class="col-md-3 col-sm-6 col-xs-6"> <a href="../index.html" class="logo-image"><img src="../img/logos/Logo.png" alt="EMG Tools Logo"> </a></div><div class="col-md-9 col-sm-6 col-xs-4"><nav class="right helper"><ul class="menu sf-menu js-menu"><li><a href="../index.html" class="color white">Home</a></li><li></li><li><a href="../documentation.html" class="color white">Documentation</a></li><li><a href="https://github.com/ChristianBalkovec/EMGtoolsEXE/archive/master.zip" class="color white">Download</a></li><li><a href="https://github.com/ChristianBalkovec/EMGtools" class="color white" target="_blank">Source Files</a></li></ul></nav></div></div></div></div><div class="header-back header-back-simple header-back-small"><div class="header-back-container"><div class="container-fluid container-spaced"><div class="row"><div class="col-md-9"><div class="page-info"><h1 class="page-title color white">Documentation</h1><h2 class="page-description color white">Have a question? Find your answer here.</h2></div></div></div></div></div></div><div id="content"><div class="container-fluid container-spaced"><div class="layout with-left-sidebar js-layout"><div class="row"><div class="col-md-3 hidden-sm hidden-xs"><div class="sidebar js-sidebar-fixed"><nav class="menu-vertical-wrapper"><ul class="menu-vertical js-menu-vertical" data-prepend-to=".js-layout" data-select="Menu"><li><a href="../documentation.html">Contents</a></li><li><a href="#">Download & Installation</a><ul><li><a href="standalone.html">Standalone Application</a></li><li><a href="source-files.html">Source Files</a></li></ul></li><li><a href="#">Program Overview</a><ul><li><a href="what-do.html">What Does EMG Tools Do?</a></li><li><a href="user-interface.html">User Interface</a></li></ul></li><li><a href="#">Using EMG Tools</a><ul><li><a href="step1.html">Step 1: Data Import</a></li><li><a href="step2.html">Step 2: MVC & Quiet Lying</a></li><li><a href="step3.html">Step 3: Filter Parameters</a></li><li><a href="step4.html">Step 4: Export Options</a></li></ul></li><li><a href="video-tutorials.html">Video Tutorials</a></li><li><a class="selected" href="code-samples.html" style="color: #28c">Code Samples</a></li><li><a href="troubleshooting.html">Troubleshooting</a></li><li><a href="about.html">About</a></li><li><a href="../index.html">Home</a></li></ul></nav></div></div><div class="col-md-9"><div class="main-content"><div class="category-info helper pt0" id="tutorial"><h3 class="category-title">Code Samples</h3><h2 class="page-description">Snippets of Code Used in EMG Tools and a Description of What They Do</h2></div><div id="tutorial-lessons "><div class="category-info helper pt0"><h4 class="category-description">Filter parameters</h4></div></div><p>Both bandpass and lowpass filters are set up using the <code>butter</code> function in Matlab. Following the setup of filter coefficients, they are used to filter the data using Matlab's <code>filtfilt</code> function.</p><div class="col-md-12 helper mb60"><div class="code-highlight" data-label="EMG Tools filter code"><pre><code class="language-markup">% Bandpass Filter
+[B, A] = butter(order, [cutoff_low,cutoff_high]/(sample_frequency/2), 'bandpass'); 
+
+% Butterworth Filter
+[B, A] = butter(order, cutoff_high/(sample_frequency/2), 'low'); 
+
+% Filter raw data
+data_filtered = filtfilt(B, A, data); 
+
+</code></pre></div></div><div id="tutorial-lessons"><div class="category-info"><h4 class="category-description">Remove DC shift.</h4></div></div><p>DC bias is removed by taking the average of each channel of filtered data for the quiet lying trials and subtracting them from the relevant channels in the data files.</p><div class="col-md-12 helper mb60"><div class="code-highlight" data-label="EMG Tools remove DC shift code"><pre><code class="language-markup">% Taking the average of each channel of the filtered quiet lying data
+QL_data_avg = mean(QL_data_filt);
+
+% Subtract the average from the relevant channel using the specified quiet lying file
+data_bias_removed = data_filt - QL_data_avg; 
+
+</code></pre></div></div><div id="tutorial-lessons"><div class="category-info"><h4 class="category-description">Padding data.</h4></div></div><p>Matlab's <code>filter</code> function, which is used for the linear envelope does not pad the data. The data is therefore padded by EMG Tools using the invert method. This reverses the filtered data, divides it into two halves, inverts it, and puts each end on either end of the data array.</p><div class="col-md-12 helper mb60"><div class="code-highlight" data-label="EMG Tools padding point generation code"><pre><code class="language-markup">% find length of half the data array, use 'round' to ensure that
+% value obtained is an integer
+padding = round(length(data) / 2); 
+         
+% reverse the data array (front to end, end to front)
+reversed_data  = flip(data, 1);  
+    
+% divide reversed array into halves
+first_half_data = reversed_data(padding:end,:); 
+last_half_data = reversed_data(1:padding,:);
+        
+% subtract value that will border start and end of data array from
+% all of the front and end padding points respectively. Inverts
+% each padding array and ensures no artificial noise is generated
+% when padding points are added to the front and end of the data
+for r=1:number_of_channels
+    front_padding_points(:,r) = first_half_data(end,r) - first_half_data(:,r);
+    end_padding_points(:,r) = last_half_data(1,r) - last_half_data(:,r);
+end
+        
+% add padding points to the front and end of the data array
+data_padded  = [front_padding_points; data; end_padding_points];  
+
+</code></pre></div></div><div id="tutorial-lessons"><div class="category-info"><h4 class="category-description">Full wave rectify.</h4></div></div><p>Full wave rectification is simply done by taking the absolute value of each data point.</p><div class="col-md-12 helper mb60"><div class="code-highlight" data-label="EMG Tools full wave rectification code"><pre><code class="language-markup">% Taking the absolute value of each data point
+rectified_data= abs(data_bias_removed); 
+
+</code></pre></div></div><div id="tutorial-lessons"><div class="category-info"><h4 class="category-description">Linear Envelope.</h4></div></div><p>Filter coefficients for the linear envelope are set up using Matlab's <code>butter</code> function. These are then used to linear envelope the data using Matlab's <code>filter</code> function.</p><div class="col-md-12 helper mb60"><div class="code-highlight" data-label="EMG Tools linear envelope filter code"><pre><code class="language-markup">% Set up linear envelope coefficients
+[D, E] = butter(filter_order_LE, cutoff_LE/(sample_frequency/2), 'low');  
+
+% Use coefficients in single-pass filter
+data_LE = filter(D, E, data_full_wave_rectified); 
+
+</code></pre></div></div><div id="tutorial-lessons"><div class="category-info"><h4 class="category-description">Normalization.</h4></div></div><p>The maximum value is found for each channel of linear enveloped MVC data. From here, the correct value from the correct channel from the correct MVC file is used on the relevant data file. Each point in the data file is converted to a percentage of this maximal value.</p><div class="col-md-12 helper mb60"><div class="code-highlight" data-label="EMG Tools normalization code"><pre><code class="language-markup">% Find the max value in the linear enveloped MVC data to be used for data
+% normalization
+MVC_max = max(MVC_LE);  
+
+% Normalize data
+for i=1:number_of_MVC_files  
+    for r=1:number_of_channels
+        for p=1:number_of_files
+            % compare strings in MVC dropdown menu to those in channel
+            % feedback window to find a match
+            if strcmp(char(filenames_MVC_trials (i,:)), get(handles.channel_list_MVC(1,r), 'String')) 
+                % normalize the channel in each data file to the channel from the corresponding MVC file that was selected
+                data_normalized{p}(:,r) = ((data_LE{p}(:,r)) / (MVC_max{i}(:,r))) * 100;   
+            end
+        end
+    end
+end
+
+</code></pre></div></div><div class="article-widget helper pt40"><h3 class="article-widget-title">Related tutorials</h3><ul class="article-related-articles"><li><a href="video-tutorials.html">Video Tutorials</a></li></ul></div></div></div></div></div></div></div><footer class="js-footer-is-fixed"><div class="footer"><div class="container"><div class="row"><div class="col-md-3 col-sm-3 col-xs-12"><div class="footer-logo-wrapper"> <a href="../index.html" class="logo-image"><img src="../img/logos/Logo.png" alt="EMG Tools Logo"> </a><p class="slogan color white">Process<br>EMG Data<br>Quickly</p></div></div><div class="col-md-9 col-sm-9 col-xs-12"><div class="footer-wrapper"><ul class="footer-menu helper right"><li><a href="https://github.com/ChristianBalkovec/EMGtoolsEXE/archive/master.zip" class="color white"><i class="fa fa-download"></i>&nbsp;Download</a></li><li><a href="https://github.com/ChristianBalkovec/EMGtools" class="color white" target="_blank"><i class="fa fa-github"></i>&nbsp;GitHub</a></li><li><a href="https://www.linkedin.com/in/christian-balkovec" class="color white" target="_blank"><i class="fa fa-linkedin"></i>&nbsp;LinkedIn</a></li><li><a href="https://www.gnu.org/licenses/" class="color white" target="_blank"><i class="fa fa-balance-scale"></i>&nbsp;License</a></li><li><a href="mailto:cbalkovec@gmail.com" class="color white"><i class="fa fa-envelope"></i>&nbsp;Contact</a></li></ul><p class="copyright helper right color white">&copy; 2017 Christian Balkovec</p></div></div></div></div></div></footer></div><script src="../js/scripts.min.js"></script><script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-90416601-1', 'auto');
+        ga('send', 'pageview');</script></body></html>
